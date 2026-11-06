@@ -1,0 +1,54 @@
+@model PurchaseRangeReport
+@{
+    Layout = null;
+    var shop = ViewBag.Shop as Shop;
+    string paper = (string)ViewBag.Paper;
+    bool a4 = paper == "a4";
+    int width = paper == "58" ? 58 : 80;
+    var contentMm = width == 58 ? 48 : 72;
+    var cur = AppOpts.Value.CurrencySymbol;
+    bool multi = Model.From != Model.To;
+}
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Purchases @Model.From.ToString("yyyy-MM-dd")</title>
+<style>
+  @if (a4) { <text>@@page { size: A4; margin: 12mm; } body { font-family: Arial, sans-serif; font-size: 13px; }</text> }
+  else { <text>@@page { size: @(width)mm auto; margin: 0; } body { margin: 0; padding: 2mm 3mm; width: @(contentMm)mm; font-family: "Courier New", monospace; font-size: @(width == 58 ? 11 : 12)px; }</text> }
+  body { color: #000; }
+  .c { text-align: center; } .b { font-weight: bold; }
+  hr { border: 0; border-top: 1px dashed #000; margin: 4px 0; }
+  .row { display: flex; justify-content: space-between; gap: 6px; }
+  .toolbar { margin: 8px 0; } .toolbar button { padding: 8px 14px; font-size: 14px; }
+  @@media print { .toolbar { display: none; } }
+</style></head>
+<body>
+<div class="toolbar"><button onclick="window.print()">Print</button></div>
+<div class="c b" style="font-size:1.25em">@(shop?.Name ?? "Purchases report")</div>
+<div class="c b">PURCHASES REPORT</div>
+<div class="c">@(multi ? $"{Model.From:dd-MM-yyyy} to {Model.To:dd-MM-yyyy}" : Model.From.ToString("dd-MM-yyyy"))</div>
+<hr />
+@if (multi)
+{
+  <div class="b">Day by day</div>
+  @foreach (var d in Model.Days) { <div class="row"><span>@d.Date.ToString("dd-MM") (@d.Bills)</span><span>@d.Kg.ToString("N2")kg</span><span>@d.Amount.ToString("N2")</span></div> }
+  <hr />
+}
+<div class="b">By product</div>
+@foreach (var p in Model.Products)
+{
+  <div>@p.Product</div>
+  <div class="row"><span>@p.Kg.ToString("N3") kg @@ @p.AvgRate.ToString("N2")</span><span>@p.Amount.ToString("N2")</span></div>
+}
+<hr />
+<div class="b">Bills (@Model.Bills.Count)</div>
+@foreach (var b in Model.Bills)
+{
+  <div class="row"><span>@b.InvoiceNumber @(multi ? b.BillDate.ToString("dd-MM") : b.FinalizedAtLocal.ToString("HH:mm"))</span><span>@b.Amount.ToString("N2")</span></div>
+  <div>&nbsp;&nbsp;@b.Seller - @b.Kg.ToString("N3") kg</div>
+}
+<hr />
+<div class="row b"><span>TOTAL KG</span><span>@Model.TotalKg.ToString("N3")</span></div>
+<div class="row b"><span>TOTAL @cur</span><span>@Model.TotalAmount.ToString("N2")</span></div>
+<hr /><div class="c">Printed @DateTime.Now.ToString("dd-MM-yyyy HH:mm")</div>
+</body></html>

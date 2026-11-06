@@ -1,0 +1,45 @@
+html { font-size: 14px; position: relative; min-height: 100%; }
+@media (min-width: 768px) { html { font-size: 16px; } }
+body { margin-bottom: 70px; background: #f6f7f9; }
+.footer { position: absolute; bottom: 0; width: 100%; line-height: 60px; }
+.stat-card .display-6 { font-weight: 600; }
+.table-numeric td.num, .table-numeric th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.card { border: 0; box-shadow: 0 1px 3px rgba(0, 0, 0, .08); }
+.bill-total { background: #eef0f3; }
+.item-card { border: 1px solid #e3e6ea; box-shadow: none; }
+
+/* ---- phones and small tablets ---- */
+@media (max-width: 767.98px) {
+  .container, .container-fluid { padding-left: 12px; padding-right: 12px; }
+  .navbar-nav .nav-link { padding: .65rem 0; }
+  .navbar-brand { font-size: 1rem; }
+  .navbar-brand small { font-size: .75rem; }
+  h1.h3 { font-size: 1.3rem; }
+  .display-6 { font-size: 1.5rem; }
+  .card-body { padding: .9rem; }
+  .btn:not(.btn-sm) { padding-top: .6rem; padding-bottom: .6rem; }   /* bigger touch targets */
+  .form-control, .form-select { font-size: 16px; }                   /* stops iOS zooming into inputs */
+  .table-responsive { -webkit-overflow-scrolling: touch; }
+  .table-responsive > .table td, .table-responsive > .table th { white-space: nowrap; }
+  .dropdown-menu { max-width: 94vw; }
+
+  /* purchase form: sticky action bar so Finalize is always reachable */
+  .bill-actions {
+    position: sticky; bottom: 0; z-index: 10;
+    background: #f6f7f9; border-top: 1px solid #dee2e6;
+    padding: .6rem 0; margin-top: .5rem;
+  }
+  .bill-actions .btn-dark, .bill-actions .btn-outline-dark { flex: 1 1 45%; }
+  #addRow { width: 100%; }
+}
+
+
+/* html { font-size: 14px; position: relative; min-height: 100%; }
+@media (min-width: 768px) { html { font-size: 16px; } }
+body { margin-bottom: 60px; background: #f6f7f9; }
+.footer { position: absolute; bottom: 0; width: 100%; white-space: nowrap; line-height: 60px; }
+.stat-card .display-6 { font-weight: 600; }
+.table-numeric td.num, .table-numeric th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.card { border: 0; box-shadow: 0 1px 3px rgba(0, 0, 0, .08); }
+.item-row td { vertical-align: top; }
+@media (max-width: 767px) { .table-responsive-stack td { white-space: nowrap; } } */

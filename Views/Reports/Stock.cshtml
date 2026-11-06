@@ -1,0 +1,19 @@
+@model StockReport
+@{ ViewData["Title"] = "Current stock"; var canDownload = Context.GetShopAccess()?.Plan?.AllowReportDownloads == true; }
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <h1 class="h3 mb-0">Current stock</h1>
+  <div class="d-flex gap-2">
+    @* <button class="btn btn-outline-dark" onclick="window.print()">Print</button> *@
+    <button class="btn btn-outline-dark" onclick="window.print()">Print A4</button>
+  <a class="btn btn-outline-dark" target="_blank" asp-action="StockPrint" asp-route-paper="80">Print 80mm</a>
+  <a class="btn btn-outline-dark" target="_blank" asp-action="StockPrint" asp-route-paper="58">Print 58mm</a>
+    @if (canDownload) { <a class="btn btn-outline-dark" asp-action="StockCsv">Download CSV</a> }
+  </div>
+</div>
+<div class="card"><div class="table-responsive"><table class="table align-middle table-numeric mb-0">
+  <thead><tr><th>Product</th><th>Category</th><th class="num">Stock (kg)</th></tr></thead><tbody>
+  @foreach (var r in Model.Rows) { <tr><td>@r.Name @if (!r.IsActive) { <span class="badge text-bg-secondary">inactive</span> }</td><td>@r.Category</td><td class="num">@r.StockKg.ToString("N3")</td></tr> }
+  @if (!Model.Rows.Any()) { <tr><td colspan="3" class="text-muted">No products yet.</td></tr> }
+  </tbody>
+  <tfoot><tr class="fw-semibold"><td colspan="2">Total</td><td class="num">@Model.TotalKg.ToString("N3")</td></tr></tfoot>
+</table></div></div>

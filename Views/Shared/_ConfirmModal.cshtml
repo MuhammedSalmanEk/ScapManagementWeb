@@ -1,0 +1,52 @@
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmTitle">Please confirm</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="confirmText">Are you sure?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-dark" id="confirmOk">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  const el = document.getElementById('confirmModal');
+  const titleEl = document.getElementById('confirmTitle');
+  const textEl = document.getElementById('confirmText');
+  const okBtn = document.getElementById('confirmOk');
+  let resolver = null, accepted = false;
+
+  okBtn.addEventListener('click', () => { accepted = true; bootstrap.Modal.getOrCreateInstance(el).hide(); });
+  el.addEventListener('hidden.bs.modal', () => {
+    if (resolver) { const r = resolver; resolver = null; r(accepted); }
+  });
+
+  // window.appConfirm({ title, text, button, cls }) -> Promise<boolean>
+  window.appConfirm = function (o) {
+    o = o || {};
+    titleEl.textContent = o.title || 'Please confirm';
+    textEl.textContent = o.text || 'Are you sure?';
+    okBtn.textContent = o.button || 'Confirm';
+    okBtn.className = 'btn ' + (o.cls || 'btn-dark');
+    accepted = false;
+    return new Promise(resolve => { resolver = resolve; bootstrap.Modal.getOrCreateInstance(el).show(); });
+  };
+
+  // Any form with data-confirm-text asks first, then submits.
+  document.addEventListener('submit', async e => {
+    const f = e.target;
+    if (!(f instanceof HTMLFormElement) || !f.hasAttribute('data-confirm-text') || f.dataset.confirmed === '1') return;
+    e.preventDefault();
+    const yes = await window.appConfirm({
+      title: f.dataset.confirmTitle, text: f.dataset.confirmText,
+      button: f.dataset.confirmButton, cls: f.dataset.confirmClass
+    });
+    if (yes) { f.dataset.confirmed = '1'; f.requestSubmit(e.submitter || undefined); }
+  }, true);
+})();
+</script>

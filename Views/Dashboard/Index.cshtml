@@ -1,0 +1,240 @@
+@model ShopDashboardViewModel
+@inject IClock Clock
+@{
+    ViewData["Title"] = "Dashboard";
+    var cur = AppOpts.Value.CurrencySymbol;
+    var info = Context.GetShopAccess();
+    var canBuy = User.HasPermission(Permissions.ManagePurchases) && info?.Access == ShopAccess.Full;
+    var seeStock = Context.CanViewStock();
+    var seeAll = Context.CanViewAllBills();
+    var hour = Clock.ToLocal(Clock.UtcNow).Hour;
+    var hello = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+    var me = User.ToCurrentUser().Name;
+    var hasFinalized = Model.RecentBills.Any(b => b.Status == BillStatus.Finalized);
+    var showGuide = Model.ProductCount == 0 || !hasFinalized;
+}
+
+<div class="page-head">
+  <div>
+    <h1 class="h3 mb-1">@hello, @me</h1>
+    <p class="sub">@info?.Shop?.Name &middot; @Clock.Today.ToString("dddd, dd MMMM yyyy")</p>
+  </div>
+  @if (canBuy)
+  {
+      <a class="btn btn-accent btn-lg" asp-controller="Purchases" asp-action="Create"><i class="bi bi-plus-circle me-1"></i> New purchase</a>
+  }
+</div>
+
+@* ---------- quick actions: big, plain-language buttons ---------- *@
+<div class="row g-3 mb-4">
+  @if (canBuy)
+  {
+    <div class="col-12 col-md-6 col-lg-3"><a class="tile primary" asp-controller="Purchases" asp-action="Create">
+      <span class="ico"><i class="bi bi-cart-plus"></i></span><span><div class="t">Buy scrap</div><div class="small">Make a bill when a seller brings scrap</div></span></a></div>
+  }
+  <div class="col-6 col-md-6 col-lg-3"><a class="tile" asp-controller="Purchases" asp-action="Index">
+    <span class="ico"><i class="bi bi-receipt"></i></span><span><div class="t">All bills</div><div class="small">Find, print or finish a bill</div></span></a></div>
+  <div class="col-6 col-md-6 col-lg-3"><a class="tile" asp-controller="Products" asp-action="Index">
+    <span class="ico"><i class="bi bi-box-seam"></i></span><span><div class="t">Products</div><div class="small">What you buy and its rate</div></span></a></div>
+  @if (seeStock)
+  {
+    <div class="col-6 col-md-6 col-lg-3"><a class="tile" asp-controller="Stock" asp-action="Index">
+      <span class="ico"><i class="bi bi-boxes"></i></span><span><div class="t">Stock</div><div class="small">How much is in the shop</div></span></a></div>
+  }
+  @if (seeAll)
+  {
+    <div class="col-6 col-md-6 col-lg-3"><a class="tile" asp-controller="Reports" asp-action="DailyPurchases">
+      <span class="ico"><i class="bi bi-bar-chart-line"></i></span><span><div class="t">Reports</div><div class="small">Totals by day, print or export</div></span></a></div>
+  }
+</div>
+
+@* ---------- first-time guide: disappears once the shop has products and a finalized bill ---------- *@
+@if (showGuide)
+{
+  <div class="card mb-4"><div class="card-body">
+    <h2 class="h5 mb-1">Getting started</h2>
+    <p class="text-muted mb-3">Follow these 4 steps. Each one turns green when done.</p>
+    <ol class="steps">
+      <li class="@(Model.ProductCount > 0 ? "done" : "")"><span class="n">@(Model.ProductCount > 0 ? "✓" : "1")</span>
+        <span class="txt flex-grow-1"><b>Add your products</b> <span class="text-muted">e.g. Iron, Copper, Plastic, with a price per kg</span></span>
+        <a class="btn btn-sm btn-outline-dark" asp-controller="Products" asp-action="Index">Open</a></li>
+      <li class="@(Model.RecentBills.Any() ? "done" : "")"><span class="n">@(Model.RecentBills.Any() ? "✓" : "2")</span>
+        <span class="txt flex-grow-1"><b>Make your first purchase bill</b> <span class="text-muted">seller name, product, kg and rate</span></span>
+        @if (canBuy) { <a class="btn btn-sm btn-outline-dark" asp-controller="Purchases" asp-action="Create">Start</a> }</li>
+      <li class="@(hasFinalized ? "done" : "")"><span class="n">@(hasFinalized ? "✓" : "3")</span>
+        <span class="txt flex-grow-1"><b>Press Finalize</b> <span class="text-muted">this locks the bill and adds the scrap to stock</span></span></li>
+      <li class="@(hasFinalized ? "done" : "")"><span class="n">@(hasFinalized ? "✓" : "4")</span>
+        <span class="txt flex-grow-1"><b>Print the bill and check stock</b> <span class="text-muted">give the seller the receipt</span></span></li>
+    </ol>
+  </div></div>
+}
+
+@* ---------- numbers ---------- *@
+@if (seeAll || seeStock)
+{
+  <div class="row g-3 mb-4">
+    @if (seeAll)
+    {
+      <div class="col-6 col-lg-3"><div class="card h-100"><div class="card-body stat"><span class="ico teal"><i class="bi bi-receipt-cutoff"></i></span><div><div class="label">Bills today</div><div class="value">@Model.TodayBills</div><div class="hint">finalized bills</div></div></div></div></div>
+      <div class="col-6 col-lg-3"><div class="card h-100"><div class="card-body stat"><span class="ico blue"><i class="bi bi-speedometer2"></i></span><div><div class="label">Scrap bought today</div><div class="value">@Model.TodayKg.ToString("N3")</div><div class="hint">kilograms</div></div></div></div></div>
+      <div class="col-6 col-lg-3"><div class="card h-100"><div class="card-body stat"><span class="ico amber"><i class="bi bi-cash-coin"></i></span><div><div class="label">Money paid today</div><div class="value">@cur @Model.TodayAmount.ToString("N2")</div><div class="hint">to sellers</div></div></div></div></div>
+    }
+    @if (seeStock)
+    {
+      <div class="col-6 col-lg-3"><div class="card h-100"><div class="card-body stat"><span class="ico green"><i class="bi bi-boxes"></i></span><div><div class="label">Stock in shop</div><div class="value">@Model.TotalStockKg.ToString("N3")</div><div class="hint">kilograms, all products</div></div></div></div></div>
+    }
+  </div>
+}
+
+@if (Model.DraftCount > 0)
+{
+  <div class="alert alert-secondary d-flex align-items-center gap-2 flex-wrap">
+    <i class="bi bi-hourglass-split"></i>
+    <span><b>@Model.DraftCount unfinished bill(s).</b> Draft bills are not in your stock yet. Open one and press <b>Finalize</b>.</span>
+    <a class="ms-auto fw-semibold" asp-controller="Purchases" asp-action="Index" asp-route-status="Draft">View drafts &rarr;</a>
+  </div>
+}
+
+<div class="row g-3 mb-4">
+  @if (seeAll)
+  {
+  <div class="col-lg-@(seeStock ? 7 : 12)"><div class="card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h2 class="h5 mb-0">Recent bills</h2>
+      <a asp-controller="Purchases" asp-action="Index">View all &rarr;</a>
+    </div>
+    <div class="table-responsive"><table class="table table-hover align-middle table-numeric mb-0">
+      <thead><tr><th>Invoice</th><th>Seller</th><th class="num">Kg</th><th class="num">Amount</th><th>Status</th></tr></thead>
+      <tbody>
+      @foreach (var b in Model.RecentBills)
+      {
+        <tr>
+          <td><a class="fw-semibold" asp-controller="Purchases" asp-action="Details" asp-route-id="@b.Id">@(b.InvoiceNumber ?? "Draft #" + b.Id)</a></td>
+          <td>@b.SellerName</td><td class="num">@b.TotalKg.ToString("N3")</td><td class="num">@b.TotalAmount.ToString("N2")</td>
+          <td>@if (b.Status == BillStatus.Draft) { <span class="badge text-bg-secondary">Draft</span> } else { <span class="badge text-bg-success">Finalized</span> }</td>
+        </tr>
+      }
+      @if (!Model.RecentBills.Any()) { <tr><td colspan="5" class="text-muted py-4 text-center">No bills yet. Press <b>New purchase</b> to make your first one.</td></tr> }
+      </tbody></table></div>
+  </div></div></div>
+  }
+  @if (seeStock)
+  {
+  <div class="col-lg-@(seeAll ? 5 : 12)"><div class="card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h2 class="h5 mb-0">Running low</h2>
+      <a asp-controller="Stock" asp-action="Index">View all stock &rarr;</a>
+    </div>
+    @foreach (var p in Model.LowestStock)
+    {
+      <div class="stock-row">
+        <span>@p.Name</span>
+        <span>
+          @if (p.StockKg <= 0) { <span class="badge text-bg-danger me-1">Out</span> }
+          else if (p.StockKg < 5) { <span class="badge text-bg-warning me-1">Low</span> }
+          <b class="text-nowrap">@p.StockKg.ToString("N3") kg</b>
+        </span>
+      </div>
+    }
+    @if (!Model.LowestStock.Any()) { <div class="text-muted py-3">No products yet. <a asp-controller="Products" asp-action="Index">Add products</a>.</div> }
+  </div></div></div>
+  }
+</div>
+
+@* ---------- how it works, always visible and short ---------- *@
+<div class="card"><div class="card-body">
+  <h2 class="h6 mb-2">How a bill works</h2>
+  <div class="flow">
+    <span class="chip"><i class="bi bi-pencil-square"></i> 1. Fill the bill</span><span class="arrow">&rarr;</span>
+    <span class="chip"><i class="bi bi-save"></i> 2. Save draft <span class="text-muted">(stock not changed)</span></span><span class="arrow">&rarr;</span>
+    <span class="chip"><i class="bi bi-check2-circle"></i> 3. Finalize <span class="text-muted">(stock goes up, bill is locked)</span></span><span class="arrow">&rarr;</span>
+    <span class="chip"><i class="bi bi-printer"></i> 4. Print receipt</span>
+  </div>
+</div></div>
+
+@* @model ShopDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var cur = AppOpts.Value.CurrencySymbol;
+    var info = Context.GetShopAccess();
+    var showStock = Context.CanViewStock();
+    var showBills = Context.CanViewAllBills();
+    var canBuy = User.HasPermission(Permissions.ManagePurchases) && info?.Access == ShopAccess.Full;
+    var billsCol = showStock ? "col-lg-7" : "col-12";
+    var stockCol = showBills ? "col-lg-5" : "col-12";
+}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+  <h1 class="h3 mb-0">Dashboard</h1>
+  @if (canBuy)
+  {
+      <a class="btn btn-dark" asp-controller="Purchases" asp-action="Create">+ New purchase</a>
+  }
+</div>
+
+@if (showBills || showStock)
+{
+  <div class="row g-3 mb-4">
+    @if (showBills)
+    {
+      <div class="col-6 col-lg-3"><div class="card stat-card"><div class="card-body"><div class="text-muted">Today's bills</div><div class="display-6">@Model.TodayBills</div></div></div></div>
+      <div class="col-6 col-lg-3"><div class="card stat-card"><div class="card-body"><div class="text-muted">Bought today (kg)</div><div class="display-6">@Model.TodayKg.ToString("N3")</div></div></div></div>
+      <div class="col-6 col-lg-3"><div class="card stat-card"><div class="card-body"><div class="text-muted">Spent today</div><div class="display-6">@cur @Model.TodayAmount.ToString("N2")</div></div></div></div>
+    }
+    @if (showStock)
+    {
+      <div class="col-6 col-lg-3"><div class="card stat-card"><div class="card-body"><div class="text-muted">Total stock (kg)</div><div class="display-6">@Model.TotalStockKg.ToString("N3")</div></div></div></div>
+    }
+  </div>
+}
+else
+{
+  <div class="card mb-4"><div class="card-body">
+    <h2 class="h5">Welcome, @User.GetFullName()</h2>
+    <p class="text-muted mb-3">Create purchase bills and add products.</p>
+    <div class="d-flex gap-2 flex-wrap">
+      @if (canBuy) { <a class="btn btn-dark" asp-controller="Purchases" asp-action="Create">+ New purchase</a> }
+      <a class="btn btn-outline-dark" asp-controller="Products" asp-action="Index">Products</a>
+    </div>
+  </div></div>
+}
+
+@if (showBills && Model.DraftCount > 0)
+{
+    <div class="alert alert-secondary">You have @Model.DraftCount draft bill(s). Stock changes only after a bill is finalized. <a asp-controller="Purchases" asp-action="Index" asp-route-status="Draft">View drafts</a></div>
+}
+
+@if (showBills || showStock)
+{
+  <div class="row g-3">
+    @if (showBills)
+    {
+      <div class="@billsCol"><div class="card"><div class="card-body">
+        <h2 class="h5">Recent bills</h2>
+        <div class="table-responsive"><table class="table table-sm align-middle table-numeric mb-0">
+          <thead><tr><th>Invoice</th><th>Seller</th><th class="num">Kg</th><th class="num">Amount</th><th></th></tr></thead>
+          <tbody>
+          @foreach (var b in Model.RecentBills)
+          {
+              <tr>
+                <td><a asp-controller="Purchases" asp-action="Details" asp-route-id="@b.Id">@(b.InvoiceNumber ?? "Draft #" + b.Id)</a></td>
+                <td>@b.SellerName</td><td class="num">@b.TotalKg.ToString("N3")</td><td class="num">@b.TotalAmount.ToString("N2")</td>
+                <td>@if (b.Status == BillStatus.Draft) { <span class="badge text-bg-secondary">Draft</span> }</td>
+              </tr>
+          }
+          @if (!Model.RecentBills.Any()) { <tr><td colspan="5" class="text-muted">No bills yet.</td></tr> }
+          </tbody></table></div>
+      </div></div></div>
+    }
+    @if (showStock)
+    {
+      <div class="@stockCol"><div class="card"><div class="card-body">
+        <h2 class="h5">Lowest stock</h2>
+        <div class="mb-2"><a asp-controller="Stock" asp-action="Index">View all stock &rarr;</a></div>
+        <table class="table table-sm table-numeric mb-0"><tbody>
+          @foreach (var p in Model.LowestStock) { <tr><td>@p.Name</td><td class="num">@p.StockKg.ToString("N3") kg</td></tr> }
+          @if (!Model.LowestStock.Any()) { <tr><td class="text-muted">No products yet. <a asp-controller="Products" asp-action="Index">Add products</a>.</td></tr> }
+        </tbody></table>
+      </div></div></div>
+    }
+  </div>
+} *@

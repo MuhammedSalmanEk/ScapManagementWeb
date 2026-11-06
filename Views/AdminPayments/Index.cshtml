@@ -1,0 +1,45 @@
+@model AdminPaymentsViewModel
+@{ ViewData["Title"] = "Payments"; var cur = AppOpts.Value.CurrencySymbol; var inv = System.Globalization.CultureInfo.InvariantCulture; }
+<h1 class="h3 mb-3">Payments</h1>
+<div class="row g-3 mb-3">
+  <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Paid by shops</div><div class="h4 mb-0">@cur @Model.TotalPaid.ToString("N2")</div></div></div></div>
+  <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Credited to account</div><div class="h4 mb-0">@cur @Model.TotalCredited.ToString("N2")</div></div></div></div>
+  <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Not yet credited</div><div class="h4 mb-0">@cur @Model.NotCredited.ToString("N2")</div></div></div></div>
+</div>
+<form method="get" class="row g-2 mb-3">
+  <input type="hidden" name="shopId" value="@Model.ShopId" />
+  <div class="col-md-3"><select name="status" class="form-select">
+    <option value="paid" selected="@(Model.Status == "paid")">Paid</option>
+    <option value="created" selected="@(Model.Status == "created")">Started, not paid</option>
+    <option value="failed" selected="@(Model.Status == "failed")">Failed</option>
+    <option value="all" selected="@(Model.Status == "all")">All</option></select></div>
+  <div class="col-md-3"><input type="date" name="fromDate" value="@Model.From?.ToString("yyyy-MM-dd")" class="form-control" /></div>
+  <div class="col-md-3"><input type="date" name="toDate" value="@Model.To?.ToString("yyyy-MM-dd")" class="form-control" /></div>
+  <div class="col-md-2"><button class="btn btn-outline-dark w-100">Filter</button></div>
+</form>
+<div class="card"><div class="table-responsive"><table class="table align-middle table-numeric mb-0">
+  <thead><tr><th>Date</th><th>Shop</th><th>Plan</th><th class="num">Paid (@cur)</th><th>Razorpay ID</th><th>Status</th><th>Credited to account</th></tr></thead><tbody>
+  @foreach (var p in Model.Rows)
+  {
+      <tr>
+        <td>@p.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
+        <td><a asp-controller="AdminShops" asp-action="Details" asp-route-id="@p.ShopId">@p.Shop?.Name</a></td>
+        <td>@p.PlanName <span class="badge text-bg-light border">@p.Period</span></td>
+        <td class="num">@p.Amount.ToString("N2")</td>
+        <td class="small">@p.RazorpayPaymentId</td>
+        <td>@p.Status</td>
+        <td>
+          @if (p.Status == PaymentStatus.Paid)
+          {
+              <form asp-action="Credit" asp-route-id="@p.Id" method="post" class="d-flex gap-1 flex-wrap">
+                <input name="amount" type="number" step="0.01" min="0" class="form-control form-control-sm" style="width:110px" value="@((p.CreditedAmount ?? p.Amount).ToString("0.00", inv))" />
+                <input name="creditedOn" type="date" class="form-control form-control-sm" style="width:140px" value="@p.CreditedOn?.ToString("yyyy-MM-dd")" />
+                <input name="note" class="form-control form-control-sm" style="width:140px" placeholder="Note / UTR" value="@p.CreditedNote" />
+                <button class="btn btn-sm btn-outline-dark">Save</button>
+              </form>
+          }
+        </td>
+      </tr>
+  }
+  @if (!Model.Rows.Any()) { <tr><td colspan="7" class="text-muted">No payments found.</td></tr> }
+  </tbody></table></div></div>

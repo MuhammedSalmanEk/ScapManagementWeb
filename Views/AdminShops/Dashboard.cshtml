@@ -1,0 +1,55 @@
+@model AdminDashboardViewModel
+@{ ViewData["Title"] = "Platform dashboard"; }
+<h1 class="h3 mb-3">Platform dashboard</h1>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><a class="text-decoration-none" asp-action="Index" asp-route-filter="pending"><div class="card stat-card"><div class="card-body"><div class="text-muted">Joined, not paid</div><div class="display-6">@Model.Pending</div></div></div></a></div>
+  <div class="col-6 col-lg-3"><a class="text-decoration-none" asp-action="Index" asp-route-filter="active"><div class="card stat-card"><div class="card-body"><div class="text-muted">Active</div><div class="display-6">@Model.Active</div></div></div></a></div>
+  <div class="col-6 col-lg-3"><a class="text-decoration-none" asp-action="Index" asp-route-filter="expired"><div class="card stat-card"><div class="card-body"><div class="text-muted">Expired</div><div class="display-6">@Model.Expired</div></div></div></a></div>
+  <div class="col-6 col-lg-3"><a class="text-decoration-none" asp-action="Index" asp-route-filter="suspended"><div class="card stat-card"><div class="card-body"><div class="text-muted">Suspended</div><div class="display-6">@Model.Suspended</div></div></div></a></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7"><div class="card"><div class="card-body">
+    <h2 class="h5">Joined, not paid yet</h2>
+    <p class="text-muted small">These shops registered but have not completed payment. You can wait for them to pay, or activate them yourself without payment.</p>
+    <table class="table table-sm align-middle mb-0"><tbody>
+    @foreach (var r in Model.PendingShops)
+    {
+        <tr>
+          <td>
+            @r.Shop.Name
+            <div class="small text-muted">@r.Shop.OwnerName @r.Shop.Phone &middot; joined @r.Shop.CreatedAt.ToString("dd MMM yyyy")</div>
+          </td>
+          <td class="text-end">
+            <form asp-action="Activate" asp-route-id="@r.Shop.Id" method="post" class="d-inline-flex gap-1"
+                  onsubmit="return confirm('Activate this shop without payment?');">
+              <input type="hidden" name="planId" value="@r.Shop.PlanId" />
+              <select name="period" class="form-select form-select-sm w-auto">
+                <option value="Monthly">Monthly</option>
+                <option value="Yearly" selected>Yearly</option>
+              </select>
+              <button class="btn btn-sm btn-success text-nowrap">Activate without payment</button>
+            </form>
+            <a class="btn btn-sm btn-outline-dark" asp-action="Details" asp-route-id="@r.Shop.Id">Open</a>
+          </td>
+        </tr>
+    }
+    @if (!Model.PendingShops.Any()) { <tr><td class="text-muted">Everyone who joined has paid.</td></tr> }
+    </tbody></table>
+  </div></div></div>
+
+  <div class="col-lg-5"><div class="card"><div class="card-body">
+    <h2 class="h5">Expiring within 30 days</h2>
+    <table class="table table-sm mb-0"><tbody>
+    @foreach (var r in Model.ExpiringSoon)
+    {
+        <tr>
+          <td>@r.Shop.Name<div class="small text-muted">ends @r.Shop.SubscriptionEndsOn?.ToString("dd MMM yyyy") (@r.DaysLeft day(s))</div></td>
+          <td class="text-end"><a class="btn btn-sm btn-outline-dark" asp-action="Details" asp-route-id="@r.Shop.Id">Open</a></td>
+        </tr>
+    }
+    @if (!Model.ExpiringSoon.Any()) { <tr><td class="text-muted">None.</td></tr> }
+    </tbody></table>
+  </div></div></div>
+</div>

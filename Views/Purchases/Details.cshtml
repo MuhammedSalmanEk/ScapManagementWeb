@@ -1,0 +1,74 @@
+@model PurchaseBill
+@{
+    ViewData["Title"] = Model.InvoiceNumber ?? ("Draft #" + Model.Id);
+    var cur = AppOpts.Value.CurrencySymbol;
+    var info = Context.GetShopAccess();
+    var full = info?.Access == ShopAccess.Full;
+}
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+  <div>
+    <h1 class="h3 mb-0">@ViewData["Title"] @if (Model.Status == BillStatus.Draft) { <span class="badge text-bg-secondary">Draft</span> } else { <span class="badge text-bg-success">Finalized</span> }</h1>
+    <div class="text-muted">@Model.BillDate.ToString("dd MMM yyyy")</div>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    @{ var paper = ((Shop)ViewBag.Shop).ReceiptPaperWidthMm; }
+    @if (paper == 58 || paper == 80)
+    {
+        <a class="btn btn-dark" asp-action="Receipt" asp-route-id="@Model.Id" target="_blank">Print receipt (@(paper)mm)</a>
+    }
+    @* <a class="btn btn-outline-dark" asp-action="Print" asp-route-id="@Model.Id" target="_blank">Print A4</a> *@
+    <a class="btn btn-outline-dark" asp-action="Print" asp-route-id="@Model.Id" target="_blank">Print</a>
+
+    @if (Model.Status == BillStatus.Finalized && info?.Plan?.AllowReportDownloads == true)
+    {
+        <a class="btn btn-outline-dark" asp-action="Download" asp-route-id="@Model.Id">Download CSV</a>
+    }
+    @* @if (Model.Status == BillStatus.Draft && full && User.HasPermission(Permissions.ManagePurchases))
+    {
+        <a class="btn btn-outline-dark" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+        <form asp-action="Finalize" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Finalize this bill? Stock will be increased and the bill can no longer be edited.');"><button class="btn btn-dark">Finalize</button></form>
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Delete this draft?');"><button class="btn btn-outline-danger">Delete</button></form>
+    } *@
+    @if (Model.Status == BillStatus.Draft && full && User.HasPermission(Permissions.ManagePurchases))
+    {
+        <a class="btn btn-outline-dark" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+
+        <form asp-action="Finalize" asp-route-id="@Model.Id" method="post"
+              data-confirm-title="Finalize this bill?"
+              data-confirm-text="Stock will be increased and the bill can no longer be edited."
+              data-confirm-button="Finalize" data-confirm-class="btn-dark">
+            <button class="btn btn-dark">Finalize</button>
+        </form>
+
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post"
+              data-confirm-title="Delete this draft?"
+              data-confirm-text="This draft bill will be removed permanently."
+              data-confirm-button="Delete" data-confirm-class="btn-danger">
+            <button class="btn btn-outline-danger">Delete</button>
+        </form>
+    }
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-4"><div class="card"><div class="card-body">
+    <h2 class="h6 text-muted">Seller</h2>
+    <div class="fw-semibold">@Model.SellerName</div>
+    @if (!string.IsNullOrEmpty(Model.SellerPhone)) { <div>@Model.SellerPhone</div> }
+    @if (!string.IsNullOrEmpty(Model.SellerAddress)) { <div>@Model.SellerAddress</div> }
+    @if (!string.IsNullOrEmpty(Model.SellerIdNumber)) { <div class="text-muted">ID: @Model.SellerIdNumber</div> }
+    <hr />
+    <div class="small text-muted">Created by @Model.CreatedByName</div>
+    @if (Model.FinalizedAt.HasValue) { <div class="small text-muted">Finalized by @Model.FinalizedByName</div> }
+    @if (!string.IsNullOrEmpty(Model.Notes)) { <div class="mt-2">@Model.Notes</div> }
+  </div></div></div>
+  <div class="col-lg-8"><div class="card"><div class="table-responsive"><table class="table align-middle table-numeric mb-0">
+    <thead><tr><th>Product</th><th class="num">Qty (kg)</th><th class="num">Rate / kg</th><th class="num">Amount (@cur)</th></tr></thead>
+    <tbody>
+    @foreach (var i in Model.Items)
+    {
+        <tr><td>@i.ProductName</td><td class="num">@i.QuantityKg.ToString("N3")</td><td class="num">@i.RatePerKg.ToString("N2")</td><td class="num">@i.LineTotal.ToString("N2")</td></tr>
+    }
+    </tbody>
+    <tfoot><tr class="fw-semibold"><td>Total</td><td class="num">@Model.TotalKg.ToString("N3")</td><td></td><td class="num">@Model.TotalAmount.ToString("N2")</td></tr></tfoot>
+  </table></div></div></div>
+</div>

@@ -1,0 +1,19 @@
+@model List<SubscriptionPlan>
+@{ ViewData["Title"] = "Plans & prices"; var cur = AppOpts.Value.CurrencySymbol; }
+<div class="d-flex justify-content-between align-items-center mb-3"><h1 class="h3 mb-0">Plans &amp; prices</h1><a class="btn btn-dark" asp-action="Create">+ New plan</a></div>
+<div class="card"><div class="table-responsive"><table class="table align-middle table-numeric mb-0">
+  <thead><tr><th>Name</th>
+  @* <th class="num">Yearly price</th> *@
+  <th class="num">Monthly</th><th class="num">Yearly</th>
+  <th class="num">Workers</th><th>Report downloads</th><th>Sales module</th><th>Status</th><th></th></tr></thead><tbody>
+  @foreach (var p in Model)
+  {
+      <tr><td>@p.Name<div class="small text-muted">@p.Description</div></td>
+       @* <td class="num">@cur @p.YearlyPrice.ToString("N2")</td><td class="num">@p.MaxWorkers</td> *@
+       @* <td class="num">@cur @p.MonthlyPrice.ToString("N2")</td><td class="num">@cur @p.YearlyPrice.ToString("N2")</td> *@
+       <td class="num">@(p.OfferMonthly ? cur + " " + p.MonthlyPrice.ToString("N2") : "-")</td>
+      <td class="num">@(p.OfferYearly ? cur + " " + p.YearlyPrice.ToString("N2") : "-")</td>
+          <td>@(p.AllowReportDownloads ? "Yes" : "No")</td><td>@(p.SalesModuleEnabled ? "Yes" : "No")</td>
+          <td>@(p.IsActive ? "Active" : "Inactive")</td><td class="text-end"><a class="btn btn-sm btn-outline-dark" asp-action="Edit" asp-route-id="@p.Id">Edit</a></td></tr>
+  }
+  </tbody></table></div></div>

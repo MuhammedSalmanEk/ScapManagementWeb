@@ -1,0 +1,31 @@
+@model List<Category>
+@{
+    ViewData["Title"] = "Categories";
+    var isAdmin = User.IsInRole(AppRoles.ShopAdmin);
+}
+<h1 class="h3 mb-3">Categories</h1>
+<div class="row g-3">
+  <div class="col-lg-7"><div class="card"><div class="table-responsive"><table class="table align-middle mb-0">
+    <thead><tr><th>Name</th>@if (isAdmin) { <th></th> }</tr></thead><tbody>
+    @foreach (var c in Model)
+    {
+        <tr class="@(c.IsActive ? "" : "text-muted")">
+          <td>
+            <form asp-action="Rename" asp-route-id="@c.Id" method="post" class="d-flex gap-2">
+              <input name="name" value="@c.Name" class="form-control form-control-sm" maxlength="80" />
+              <button class="btn btn-sm btn-outline-secondary">Rename</button>
+            </form>
+          </td>
+          @if (isAdmin)
+          {
+              <td class="text-end"><form asp-action="Toggle" asp-route-id="@c.Id" method="post"><button class="btn btn-sm btn-outline-secondary">@(c.IsActive ? "Deactivate" : "Activate")</button></form></td>
+          }
+        </tr>
+    }
+    @if (!Model.Any()) { <tr><td colspan="2" class="text-muted">No categories yet.</td></tr> }
+    </tbody></table></div></div></div>
+  <div class="col-lg-5"><div class="card"><div class="card-body">
+    <h2 class="h5">Add category</h2>
+    <form asp-action="Create" method="post" class="d-flex gap-2"><input name="name" class="form-control" maxlength="80" placeholder="e.g. Iron, Copper, Paper" required /><button class="btn btn-dark">Add</button></form>
+  </div></div></div>
+</div>

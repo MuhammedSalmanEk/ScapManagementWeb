@@ -1,0 +1,21 @@
+@model ShopUsageRow
+@if (Model.Access == ShopAccess.Full)
+{
+    <span class="badge text-bg-success">Active</span>
+}
+else if (Model.Access == ShopAccess.ReadOnly)
+{
+    <span class="badge text-bg-warning">Expired</span>
+}
+else if (Model.Access == ShopAccess.Blocked)
+{
+    <span class="badge text-bg-danger">Suspended</span>
+}
+else if (Model.Shop.Status == ShopStatus.Terminated)
+{
+    <span class="badge text-bg-dark">Terminated</span>
+}
+else
+{
+    <span class="badge text-bg-info">Pending</span>
+}

@@ -1,0 +1,16 @@
+@{ ViewData["Title"] = "Welcome"; }
+<div class="row justify-content-center py-4">
+    <div class="col-lg-8 text-center">
+        <h1 class="display-5 fw-semibold">Run your scrap shop from any browser</h1>
+        <p class="lead text-muted">Record purchases by weight, keep exact stock per product, print bills and see the day's buying at a glance.</p>
+        <div class="d-flex gap-2 justify-content-center">
+            <a class="btn btn-dark btn-lg" asp-controller="Account" asp-action="Register">Register your shop</a>
+            <a class="btn btn-outline-dark btn-lg" asp-controller="Account" asp-action="Login">Log in</a>
+        </div>
+    </div>
+</div>
+<div class="row g-3 mt-2">
+    <div class="col-md-4"><div class="card h-100"><div class="card-body"><h5>Purchase billing</h5><p class="mb-0 text-muted">Seller details, items in kg at a rate per kg, automatic totals, numbered printable bills.</p></div></div></div>
+    <div class="col-md-4"><div class="card h-100"><div class="card-body"><h5>Live stock</h5><p class="mb-0 text-muted">Stock per product updates once, exactly when a bill is finalized.</p></div></div></div>
+    <div class="col-md-4"><div class="card h-100"><div class="card-body"><h5>Your own data</h5><p class="mb-0 text-muted">Every shop has separate products, workers, bills and reports.</p></div></div></div>
+</div>

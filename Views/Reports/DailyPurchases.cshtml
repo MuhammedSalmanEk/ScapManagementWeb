@@ -1,0 +1,48 @@
+@model PurchaseRangeReport
+@{
+    ViewData["Title"] = "Purchases report";
+    var cur = AppOpts.Value.CurrencySymbol;
+    var canDownload = Context.GetShopAccess()?.Plan?.AllowReportDownloads == true;
+    var f = Model.From.ToString("yyyy-MM-dd"); var t = Model.To.ToString("yyyy-MM-dd");
+    var multi = Model.From != Model.To;
+}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 d-print-none">
+  <h1 class="h3 mb-0">Purchases report</h1>
+</div>
+<form method="get" class="row g-2 align-items-end mb-3 d-print-none">
+  <div class="col-6 col-md-auto"><label class="form-label small mb-0">From</label><input type="date" name="from" value="@f" class="form-control" /></div>
+  <div class="col-6 col-md-auto"><label class="form-label small mb-0">To</label><input type="date" name="to" value="@t" class="form-control" /></div>
+  <div class="col-12 col-md-auto d-flex gap-2 flex-wrap">
+    <button class="btn btn-dark">Show</button>
+    <button type="button" class="btn btn-outline-dark" onclick="window.print()">Print A4</button>
+    <a class="btn btn-outline-dark" target="_blank" href="@Url.Action("PurchasesPrint", "Reports", new { from = f, to = t, paper = "80" })">Print 80mm</a>
+    <a class="btn btn-outline-dark" target="_blank" href="@Url.Action("PurchasesPrint", "Reports", new { from = f, to = t, paper = "58" })">Print 58mm</a>
+    @if (canDownload) { <a class="btn btn-outline-dark" href="@Url.Action("DailyPurchasesCsv", "Reports", new { from = f, to = t })">Export CSV</a> }
+  </div>
+</form>
+<p class="text-muted">@(multi ? $"{f} to {t}" : f)</p>
+<div class="row g-3 mb-3">
+  <div class="col-6 col-md-3"><div class="card"><div class="card-body"><div class="text-muted">Bills</div><div class="h3 mb-0">@Model.Bills.Count</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="card"><div class="card-body"><div class="text-muted">Total kg</div><div class="h3 mb-0">@Model.TotalKg.ToString("N3")</div></div></div></div>
+  <div class="col-12 col-md-6"><div class="card"><div class="card-body"><div class="text-muted">Total amount</div><div class="h3 mb-0">@cur @Model.TotalAmount.ToString("N2")</div></div></div></div>
+</div>
+@if (multi)
+{
+<div class="card mb-3"><div class="card-body"><h2 class="h5">Day by day</h2><div class="table-responsive"><table class="table table-sm align-middle table-numeric mb-0">
+  <thead><tr><th>Date</th><th class="num">Bills</th><th class="num">Kg</th><th class="num">Amount</th></tr></thead><tbody>
+  @foreach (var d in Model.Days) { <tr><td>@d.Date.ToString("dd MMM yyyy")</td><td class="num">@d.Bills</td><td class="num">@d.Kg.ToString("N3")</td><td class="num">@d.Amount.ToString("N2")</td></tr> }
+  @if (!Model.Days.Any()) { <tr><td colspan="4" class="text-muted">No finalized bills in this range.</td></tr> }
+  </tbody></table></div></div></div>
+}
+<div class="row g-3">
+  <div class="col-lg-7"><div class="card"><div class="card-body"><h2 class="h5">Bills</h2><div class="table-responsive"><table class="table table-sm align-middle table-numeric mb-0">
+    <thead><tr><th>Invoice</th><th>@(multi ? "Date" : "Time")</th><th>Seller</th><th class="num">Kg</th><th class="num">Amount</th></tr></thead><tbody>
+    @foreach (var b in Model.Bills) { <tr><td><a asp-controller="Purchases" asp-action="Details" asp-route-id="@b.Id">@b.InvoiceNumber</a></td><td>@(multi ? b.BillDate.ToString("dd MMM") + " " : "")@b.FinalizedAtLocal.ToString("HH:mm")</td><td>@b.Seller</td><td class="num">@b.Kg.ToString("N3")</td><td class="num">@b.Amount.ToString("N2")</td></tr> }
+    @if (!Model.Bills.Any()) { <tr><td colspan="5" class="text-muted">No finalized bills.</td></tr> }
+    </tbody></table></div></div></div></div>
+  <div class="col-lg-5"><div class="card"><div class="card-body"><h2 class="h5">By product</h2><div class="table-responsive"><table class="table table-sm align-middle table-numeric mb-0">
+    <thead><tr><th>Product</th><th class="num">Kg</th><th class="num">Avg rate</th><th class="num">Amount</th></tr></thead><tbody>
+    @foreach (var p in Model.Products) { <tr><td>@p.Product</td><td class="num">@p.Kg.ToString("N3")</td><td class="num">@p.AvgRate.ToString("N2")</td><td class="num">@p.Amount.ToString("N2")</td></tr> }
+    @if (!Model.Products.Any()) { <tr><td colspan="4" class="text-muted">-</td></tr> }
+    </tbody></table></div></div></div></div>
+</div>

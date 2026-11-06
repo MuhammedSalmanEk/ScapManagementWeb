@@ -1,0 +1,31 @@
+@model AdminShopsIndexViewModel
+@{ ViewData["Title"] = "Shops"; }
+<h1 class="h3 mb-3">Registered shops</h1>
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-5"><input name="search" value="@Model.Search" class="form-control" placeholder="Search shop, owner or phone" /></div>
+  <div class="col-md-3"><select name="filter" class="form-select">
+    <option value="">All statuses</option>
+    <option value="pending" selected="@(Model.Filter == "pending")">Pending</option>
+    <option value="active" selected="@(Model.Filter == "active")">Active</option>
+    <option value="expired" selected="@(Model.Filter == "expired")">Expired</option>
+    <option value="suspended" selected="@(Model.Filter == "suspended")">Suspended</option></select></div>
+  <div class="col-md-2"><button class="btn btn-outline-dark w-100">Filter</button></div>
+</form>
+<div class="card"><div class="table-responsive"><table class="table align-middle table-numeric mb-0">
+  <thead><tr><th>Shop</th><th>Status</th><th>Plan</th><th>Ends</th><th class="num">Workers</th><th class="num">Products</th><th class="num">Bills</th><th>Last bill</th><th></th></tr></thead><tbody>
+  @foreach (var r in Model.Rows)
+  {
+      <tr>
+        <td>@r.Shop.Name<div class="small text-muted">@r.Shop.OwnerName</div></td>
+        <td><partial name="_ShopStatusBadge" model="r" /></td>
+        <td>@r.Shop.Plan?.Name</td>
+        <td>@(r.Shop.SubscriptionEndsOn?.ToString("dd MMM yyyy") ?? "-")</td>
+        <td class="num">@r.WorkerCount / @r.WorkerLimit</td>
+        <td class="num">@r.ProductCount</td>
+        <td class="num">@r.FinalizedBillCount</td>
+        <td>@(r.LastBillAt?.ToString("dd MMM yyyy") ?? "-")</td>
+        <td class="text-end"><a class="btn btn-sm btn-outline-dark" asp-action="Details" asp-route-id="@r.Shop.Id">Manage</a></td>
+      </tr>
+  }
+  @if (!Model.Rows.Any()) { <tr><td colspan="9" class="text-muted">No shops found.</td></tr> }
+  </tbody></table></div></div>

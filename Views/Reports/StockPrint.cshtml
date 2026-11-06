@@ -1,0 +1,36 @@
+@model StockReport
+@{
+    Layout = null;
+    var shop = ViewBag.Shop as Shop;
+    string paper = (string)ViewBag.Paper;
+    bool a4 = paper == "a4";
+    int width = paper == "58" ? 58 : 80;
+    var contentMm = width == 58 ? 48 : 72;
+}
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stock report</title>
+<style>
+  @if (a4) { <text>@@page { size: A4; margin: 12mm; } body { font-family: Arial, sans-serif; font-size: 13px; }</text> }
+  else { <text>@@page { size: @(width)mm auto; margin: 0; } body { margin: 0; padding: 2mm 3mm; width: @(contentMm)mm; font-family: "Courier New", monospace; font-size: @(width == 58 ? 11 : 12)px; }</text> }
+  body { color: #000; }
+  .c { text-align: center; } .b { font-weight: bold; }
+  hr { border: 0; border-top: 1px dashed #000; margin: 4px 0; }
+  .row { display: flex; justify-content: space-between; gap: 6px; }
+  .toolbar { margin: 8px 0; } .toolbar button { padding: 8px 14px; font-size: 14px; }
+  @@media print { .toolbar { display: none; } }
+</style></head>
+<body>
+<div class="toolbar"><button onclick="window.print()">Print</button></div>
+<div class="c b" style="font-size:1.25em">@(shop?.Name ?? "Stock")</div>
+<div class="c b">STOCK REPORT</div>
+<div class="c">@DateTime.Now.ToString("dd-MM-yyyy HH:mm")</div>
+<hr />
+@foreach (var r in Model.Rows)
+{
+  <div class="row"><span>@r.Name</span><span>@r.StockKg.ToString("N3")</span></div>
+}
+@if (!Model.Rows.Any()) { <div class="c">No products</div> }
+<hr />
+<div class="row b"><span>TOTAL KG</span><span>@Model.TotalKg.ToString("N3")</span></div>
+</body></html>

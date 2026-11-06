@@ -1,0 +1,128 @@
+@using ScrapManagement.Web.Controllers
+@model SubscriptionStatusViewModel
+@{
+    ViewData["Title"] = "Subscription";
+    var info = Model.Info; var s = info.Shop;
+    var cur = AppOpts.Value.CurrencySymbol;
+    var isPending = info.Access == ShopAccess.Pending;
+    var canPay = User.IsInRole(AppRoles.ShopAdmin) && (s.Status is ShopStatus.Pending or ShopStatus.Active);
+    ViewBag.Offers = Model.Offers;
+    ViewBag.SelectedOffer = isPending ? null : $"{s.PlanId}:{s.BillingPeriod}";
+}
+<div class="row justify-content-center"><div class="col-lg-8">
+
+<div class="card mb-3"><div class="card-body p-4">
+  <h2 class="h4">@s.Name</h2>
+
+  @if (s.Status == ShopStatus.Terminated)
+  { <div class="alert alert-danger">This shop's subscription has been terminated by the platform admin. Please contact them.</div> }
+  else if (isPending)
+  { <div class="alert alert-info mb-0"><strong>Step 2 of 2:</strong> choose your plan below and pay. Your shop opens as soon as the payment succeeds.</div> }
+  else if (info.Access == ShopAccess.Blocked)
+  { <div class="alert alert-danger">Your shop has been suspended by the platform admin. Please contact them to restore access.</div> }
+  else if (info.Access == ShopAccess.ReadOnly)
+  { <div class="alert alert-warning">Your subscription expired on @s.SubscriptionEndsOn?.ToString("dd MMM yyyy"). You can view your data, but cannot create or change anything until you renew.</div> }
+  else
+  { <div class="alert alert-success">Your subscription is active.</div> }
+
+  @if (!isPending)
+  {
+    <dl class="row mb-0 mt-3">
+      <dt class="col-sm-4">Plan</dt><dd class="col-sm-8">@s.Plan?.Name (@s.BillingPeriod)</dd>
+      <dt class="col-sm-4">Workers allowed</dt><dd class="col-sm-8">@(s.WorkerLimitOverride ?? s.Plan?.MaxWorkers) (besides the admin)</dd>
+      <dt class="col-sm-4">Valid from</dt><dd class="col-sm-8">@(s.SubscriptionStartsOn?.ToString("dd MMM yyyy") ?? "-")</dd>
+      <dt class="col-sm-4">Valid until</dt><dd class="col-sm-8">@(s.SubscriptionEndsOn?.ToString("dd MMM yyyy") ?? "-")</dd>
+    </dl>
+  }
+
+  <div class="mt-3">
+    @if (info.Access is ShopAccess.Full or ShopAccess.ReadOnly)
+    { <a class="btn btn-dark" asp-controller="Dashboard" asp-action="Index">Open dashboard</a> }
+    <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline"><button class="btn btn-outline-secondary">Log out</button></form>
+  </div>
+</div></div>
+
+@if (canPay)
+{
+  <div class="card mb-3"><div class="card-body p-4">
+    <h3 class="h5">@(isPending ? "Choose your plan and pay" : "Renew or change your plan")</h3>
+
+    @if (!Model.Offers.Any())
+    {
+      <div class="alert alert-warning mb-0">
+        The platform admin has not published any plan prices yet. Please try again later or contact them.
+      </div>
+    }
+    else if (!Model.PaymentsEnabled)
+    {
+      <div class="alert alert-warning mb-0">
+        Online payment is not set up yet. Please contact the platform admin - they can also activate your shop manually.
+      </div>
+    }
+    else
+    {
+      <form id="payForm">
+        @Html.AntiForgeryToken()
+        <partial name="_PlanOfferPicker" />
+        <button type="submit" id="payBtn" class="btn btn-success mt-3">Pay now</button>
+        <span class="text-muted small ms-2">Secure payment by Razorpay</span>
+      </form>
+    }
+  </div></div>
+}
+
+@if (Model.Payments.Any())
+{
+  <div class="card"><div class="card-body"><h3 class="h5">Payment history</h3>
+    <table class="table table-sm mb-0"><tbody>
+    @foreach (var p in Model.Payments)
+    { <tr><td>@p.CreatedAt.ToString("dd MMM yyyy")</td><td>@p.PlanName (@p.Period)</td><td>@cur @p.Amount.ToString("N2")</td><td>@p.Status</td></tr> }
+    </tbody></table></div></div>
+}
+</div></div>
+
+@section Scripts {
+  @if (canPay && Model.PaymentsEnabled && Model.Offers.Any())
+  {
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+    const form = document.getElementById('payForm');
+    const btn = document.getElementById('payBtn');
+    const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
+    const dashboardUrl = '@Url.Action("Index", "Dashboard")';
+    const statusUrl = '@Url.Action("Status")';
+    const post = (url, data) => fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ ...data, __RequestVerificationToken: token })
+    });
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      btn.disabled = true;
+      try {
+        const chosen = form.querySelector('input[name="offer"]:checked');
+        if (!chosen) throw new Error('Please choose a plan.');
+        const r = await post('@Url.Action("CreateOrder")', { offer: chosen.value });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'Could not start the payment.');
+        new Razorpay({
+          key: d.keyId, amount: d.amountPaise, currency: d.currency,
+          name: d.shopName, description: d.description, order_id: d.orderId,
+          handler: async resp => {
+            const v = await post('@Url.Action("Verify")', {
+              razorpay_order_id: resp.razorpay_order_id,
+              razorpay_payment_id: resp.razorpay_payment_id,
+              razorpay_signature: resp.razorpay_signature
+            });
+            if (!v.ok) {
+              alert('We could not confirm the payment yet. If the money was deducted, your shop will be activated automatically within a few minutes.');
+            }
+            window.location.href = v.ok ? dashboardUrl : statusUrl;
+          },
+          modal: { ondismiss: () => { btn.disabled = false; } }
+        }).open();
+      } catch (err) { alert(err.message); btn.disabled = false; }
+    });
+    </script>
+  }
+}

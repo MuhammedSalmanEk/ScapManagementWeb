@@ -1,0 +1,29 @@
+@model PurchaseListViewModel
+@{ ViewData["Title"] = "Purchases"; var cur = AppOpts.Value.CurrencySymbol; }
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Purchase bills</h1>
+  @if (User.HasPermission(Permissions.ManagePurchases) && Context.GetShopAccess()?.Access == ShopAccess.Full)
+  {
+      <a class="btn btn-dark" asp-action="Create">+ New purchase</a>
+  }
+</div>
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-3"><input name="search" value="@Model.Search" class="form-control" placeholder="Seller or invoice no." /></div>
+  <div class="col-md-2"><select name="status" class="form-select"><option value="">All</option><option value="Draft" selected="@(Model.Status == BillStatus.Draft)">Drafts</option><option value="Finalized" selected="@(Model.Status == BillStatus.Finalized)">Finalized</option></select></div>
+  <div class="col-md-2"><input type="date" name="from" value="@Model.From?.ToString("yyyy-MM-dd")" class="form-control" title="From" /></div>
+  <div class="col-md-2"><input type="date" name="to" value="@Model.To?.ToString("yyyy-MM-dd")" class="form-control" title="To" /></div>
+  <div class="col-md-2"><button class="btn btn-outline-dark w-100">Filter</button></div>
+</form>
+<div class="card"><div class="table-responsive"><table class="table align-middle table-numeric mb-0">
+  <thead><tr><th>Invoice</th><th>Date</th><th>Seller</th><th class="num">Kg</th><th class="num">Amount (@cur)</th><th>Status</th><th></th></tr></thead><tbody>
+  @foreach (var b in Model.Bills)
+  {
+      <tr>
+        <td>@(b.InvoiceNumber ?? "Draft #" + b.Id)</td><td>@b.BillDate.ToString("dd MMM yyyy")</td><td>@b.SellerName</td>
+        <td class="num">@b.TotalKg.ToString("N3")</td><td class="num">@b.TotalAmount.ToString("N2")</td>
+        <td>@if (b.Status == BillStatus.Draft) { <span class="badge text-bg-secondary">Draft</span> } else { <span class="badge text-bg-success">Finalized</span> }</td>
+        <td class="text-end"><a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@b.Id">Open</a></td>
+      </tr>
+  }
+  @if (!Model.Bills.Any()) { <tr><td colspan="7" class="text-muted">No bills found.</td></tr> }
+  </tbody></table></div></div>

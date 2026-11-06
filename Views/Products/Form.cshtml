@@ -1,0 +1,18 @@
+@model Product
+@{ ViewData["Title"] = Model.Id == 0 ? "Add product" : "Edit product"; }
+<div class="row justify-content-center"><div class="col-lg-6"><div class="card"><div class="card-body p-4">
+  <h1 class="h4 mb-3">@ViewData["Title"]</h1>
+  <form method="post" asp-action="@(Model.Id == 0 ? "Create" : "Edit")" asp-route-id="@(Model.Id == 0 ? null : Model.Id)">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" /><span asp-validation-for="Name" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="CategoryId" class="form-label">Category</label><select asp-for="CategoryId" class="form-select" asp-items="@((SelectList)ViewBag.Categories)"><option value="">None</option></select><span asp-validation-for="CategoryId" class="text-danger"></span></div>
+    <div class="row">
+      <div class="col-md-6 mb-3"><label asp-for="DefaultRatePerKg" class="form-label"></label><input asp-for="DefaultRatePerKg" class="form-control" type="number" step="0.01" min="0" /><span asp-validation-for="DefaultRatePerKg" class="text-danger"></span></div>
+      <div class="col-md-6 mb-3"><label asp-for="WholesaleRatePerKg" class="form-label"></label><input asp-for="WholesaleRatePerKg" class="form-control" type="number" step="0.01" min="0" /><span asp-validation-for="WholesaleRatePerKg" class="text-danger"></span><div class="form-text">Leave 0 to use the retail rate.</div></div>
+    </div>
+    <div class="mb-3"><label asp-for="Description" class="form-label"></label><textarea asp-for="Description" class="form-control" rows="2"></textarea></div>
+    @if (Model.Id != 0) { <p class="text-muted">Current stock: <strong>@Model.StockKg.ToString("N3") kg</strong> (changes only through finalized purchase bills).</p> }
+    <button class="btn btn-dark">Save</button> <a class="btn btn-link" asp-action="Index">Cancel</a>
+  </form>
+</div></div></div></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

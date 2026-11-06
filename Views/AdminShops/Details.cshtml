@@ -1,0 +1,258 @@
+@model AdminShopDetailsViewModel
+@{
+    var u = Model.Usage; var s = u.Shop; var cur = AppOpts.Value.CurrencySymbol;
+    ViewData["Title"] = s.Name;
+}
+<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+  <div><h1 class="h3 mb-0">@s.Name <partial name="_ShopStatusBadge" model="u" /></h1>
+    <div class="text-muted">@s.OwnerName @s.Phone @s.Address</div></div>
+  <a class="btn btn-outline-secondary" asp-action="Index">Back to shops</a>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3"><div class="card"><div class="card-body"><div class="text-muted">Workers</div><div class="h4 mb-0">@u.WorkerCount / @u.WorkerLimit</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card"><div class="card-body"><div class="text-muted">Products</div><div class="h4 mb-0">@u.ProductCount</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card"><div class="card-body"><div class="text-muted">Finalized bills</div><div class="h4 mb-0">@u.FinalizedBillCount</div><div class="small text-muted">@cur @u.TotalPurchaseAmount.ToString("N2")</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card"><div class="card-body"><div class="text-muted">Stock (kg)</div><div class="h4 mb-0">@u.TotalStockKg.ToString("N3")</div></div></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6"><div class="card"><div class="card-body">
+    <h2 class="h5">Subscription</h2>
+    <dl class="row mb-3">
+      <dt class="col-sm-4">Plan</dt>
+      <dd class="col-sm-8">@s.Plan?.Name <span class="badge text-bg-light border">@s.BillingPeriod</span></dd>
+      <dt class="col-sm-4">Plan prices</dt>
+      <dd class="col-sm-8">
+        @(s.Plan is { OfferMonthly: true } ? cur + " " + s.Plan.MonthlyPrice.ToString("N2") + " / month" : "monthly not offered")
+        &middot;
+        @(s.Plan is { OfferYearly: true } ? cur + " " + s.Plan.YearlyPrice.ToString("N2") + " / year" : "yearly not offered")
+      </dd>
+      <dt class="col-sm-4">Valid from</dt><dd class="col-sm-8">@(s.SubscriptionStartsOn?.ToString("dd MMM yyyy") ?? "-")</dd>
+      <dt class="col-sm-4">Valid until</dt>
+      <dd class="col-sm-8">@(s.SubscriptionEndsOn?.ToString("dd MMM yyyy") ?? "-") @if (u.DaysLeft is not null && u.Access == ShopAccess.Full) { <span class="text-muted">(@u.DaysLeft days left)</span> }</dd>
+      <dt class="col-sm-4">Last bill</dt><dd class="col-sm-8">@(u.LastBillAt?.ToString("dd MMM yyyy HH:mm") ?? "-")</dd>
+    </dl>
+
+    @if (s.Status is ShopStatus.Pending or ShopStatus.Terminated)
+    {
+        <p class="text-muted small">Shops normally activate themselves by paying online. Use this only for manual / offline activation (no payment recorded).</p>
+        <form asp-action="Activate" asp-route-id="@s.Id" method="post" class="d-flex gap-2 flex-wrap"
+              data-confirm-title="Activate without payment?"
+              data-confirm-text="The shop will be activated on the chosen plan and period without an online payment."
+              data-confirm-button="Activate" data-confirm-class="btn-success">
+          <select name="planId" class="form-select w-auto" asp-items="@(new SelectList(Model.Plans.Where(p => p.IsActive), "Id", "Name", s.PlanId))"></select>
+          <select name="period" class="form-select w-auto">
+            <option value="Monthly" selected="@(s.BillingPeriod == BillingPeriod.Monthly)">Monthly</option>
+            <option value="Yearly" selected="@(s.BillingPeriod == BillingPeriod.Yearly)">Yearly</option>
+          </select>
+          <button class="btn btn-success text-nowrap">Activate</button>
+        </form>
+    }
+    else
+    {
+        <div class="d-flex gap-2 flex-wrap align-items-start">
+          <form asp-action="Renew" asp-route-id="@s.Id" method="post" class="d-flex gap-2"
+                data-confirm-title="Extend this subscription?"
+                data-confirm-text="The subscription will be extended by the selected period (no payment recorded)."
+                data-confirm-button="Renew" data-confirm-class="btn-success">
+            <select name="period" class="form-select w-auto">
+              <option value="Monthly" selected="@(s.BillingPeriod == BillingPeriod.Monthly)">+ 1 month</option>
+              <option value="Yearly" selected="@(s.BillingPeriod == BillingPeriod.Yearly)">+ 1 year</option>
+            </select>
+            <button class="btn btn-success">Renew</button>
+          </form>
+
+          @if (s.Status == ShopStatus.Suspended)
+          {
+              <form asp-action="Reactivate" asp-route-id="@s.Id" method="post"
+                    data-confirm-title="Reactivate this shop?"
+                    data-confirm-text="Its users will be able to sign in and work again."
+                    data-confirm-button="Reactivate" data-confirm-class="btn-success">
+                <button class="btn btn-outline-success">Reactivate</button>
+              </form>
+          }
+          else
+          {
+              <form asp-action="Suspend" asp-route-id="@s.Id" method="post"
+                    data-confirm-title="Suspend this shop?"
+                    data-confirm-text="Its users are blocked immediately. You can reactivate it later."
+                    data-confirm-button="Suspend" data-confirm-class="btn-warning">
+                <input type="hidden" name="note" value="" /><button class="btn btn-outline-warning">Suspend</button>
+              </form>
+          }
+
+          <form asp-action="Terminate" asp-route-id="@s.Id" method="post"
+                data-confirm-title="Terminate this shop?"
+                data-confirm-text="Access ends immediately and the subscription is closed. Only a new activation can restart it."
+                data-confirm-button="Terminate" data-confirm-class="btn-danger">
+            <input type="hidden" name="note" value="" /><button class="btn btn-danger">Terminate</button>
+          </form>
+        </div>
+    }
+
+    <a class="btn btn-link px-0 mt-2" asp-controller="AdminPayments" asp-action="Index" asp-route-shopId="@s.Id">View payments</a>
+  </div></div></div>
+
+  <div class="col-lg-6"><div class="card"><div class="card-body">
+    <h2 class="h5">Plan &amp; limits</h2>
+    <form asp-action="Limits" asp-route-id="@s.Id" method="post">
+      <div class="mb-3">
+        <label class="form-label">Plan</label>
+        <select name="planId" class="form-select" asp-items="@(new SelectList(Model.Plans, "Id", "Name", s.PlanId))"></select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Worker limit override</label>
+        <input name="workerLimitOverride" type="number" min="0" max="100" class="form-control" value="@s.WorkerLimitOverride" placeholder="Use plan limit (@s.Plan?.MaxWorkers)" />
+        <div class="form-text">Leave empty to use the plan's limit.</div>
+      </div>
+      <button class="btn btn-dark">Save</button>
+    </form>
+  </div></div></div>
+
+  <div class="col-lg-6"><div class="card"><div class="card-body">
+    <h2 class="h5">Accounts</h2>
+    <table class="table table-sm mb-0"><tbody>
+    @foreach (var usr in Model.Users)
+    {
+        <tr><td>@usr.FullName<div class="small text-muted">@usr.Email</div></td><td>@(usr.IsShopAdmin ? "Admin" : "Worker")</td><td>@(usr.IsActive ? "Active" : "Inactive")</td></tr>
+    }
+    </tbody></table>
+  </div></div></div>
+
+  <div class="col-lg-6"><div class="card"><div class="card-body">
+    <h2 class="h5">History</h2>
+    <div class="table-responsive">
+    <table class="table table-sm mb-0"><tbody>
+    @foreach (var ev in Model.History)
+    {
+        <tr>
+          <td class="text-nowrap">@ev.CreatedAt.ToString("dd MMM yyyy")</td>
+          <td>@ev.Action</td>
+          <td class="small text-muted">@ev.PlanName @if (ev.Price.HasValue) { <span>(@cur @ev.Price.Value.ToString("N2"))</span> } @ev.Note</td>
+        </tr>
+    }
+    </tbody></table>
+    </div>
+  </div></div></div>
+</div>
+
+@* @model AdminShopDetailsViewModel
+@{
+    var u = Model.Usage; var s = u.Shop; var cur = AppOpts.Value.CurrencySymbol;
+    ViewData["Title"] = s.Name;
+}
+<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+  <div><h1 class="h3 mb-0">@s.Name <partial name="_ShopStatusBadge" model="u" /></h1>
+    <div class="text-muted">@s.OwnerName @s.Phone @s.Address</div></div>
+  <a class="btn btn-outline-secondary" asp-action="Index">Back to shops</a>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3"><div class="card"><div class="card-body"><div class="text-muted">Workers</div><div class="h4 mb-0">@u.WorkerCount / @u.WorkerLimit</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card"><div class="card-body"><div class="text-muted">Products</div><div class="h4 mb-0">@u.ProductCount</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card"><div class="card-body"><div class="text-muted">Finalized bills</div><div class="h4 mb-0">@u.FinalizedBillCount</div><div class="small text-muted">@cur @u.TotalPurchaseAmount.ToString("N2")</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card"><div class="card-body"><div class="text-muted">Stock (kg)</div><div class="h4 mb-0">@u.TotalStockKg.ToString("N3")</div></div></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6"><div class="card"><div class="card-body">
+    <h2 class="h5">Subscription</h2>
+    <dl class="row mb-3">
+      <dt class="col-sm-4">Plan</dt>
+      <dd class="col-sm-8">@s.Plan?.Name <span class="badge text-bg-light border">@s.BillingPeriod</span></dd>
+      <dt class="col-sm-4">Plan prices</dt>
+      <dd class="col-sm-8">
+        @(s.Plan is { OfferMonthly: true } ? cur + " " + s.Plan.MonthlyPrice.ToString("N2") + " / month" : "monthly not offered")
+        &middot;
+        @(s.Plan is { OfferYearly: true } ? cur + " " + s.Plan.YearlyPrice.ToString("N2") + " / year" : "yearly not offered")
+      </dd>
+      <dt class="col-sm-4">Valid from</dt><dd class="col-sm-8">@(s.SubscriptionStartsOn?.ToString("dd MMM yyyy") ?? "-")</dd>
+      <dt class="col-sm-4">Valid until</dt>
+      <dd class="col-sm-8">@(s.SubscriptionEndsOn?.ToString("dd MMM yyyy") ?? "-") @if (u.DaysLeft is not null && u.Access == ShopAccess.Full) { <span class="text-muted">(@u.DaysLeft days left)</span> }</dd>
+      <dt class="col-sm-4">Last bill</dt><dd class="col-sm-8">@(u.LastBillAt?.ToString("dd MMM yyyy HH:mm") ?? "-")</dd>
+    </dl>
+
+    @if (s.Status is ShopStatus.Pending or ShopStatus.Terminated)
+    {
+        <p class="text-muted small">Shops normally activate themselves by paying online. Use this only for manual / offline activation.</p>
+        <form asp-action="Activate" asp-route-id="@s.Id" method="post" class="d-flex gap-2 flex-wrap">
+          <select name="planId" class="form-select w-auto" asp-items="@(new SelectList(Model.Plans.Where(p => p.IsActive), "Id", "Name", s.PlanId))"></select>
+          <select name="period" class="form-select w-auto">
+            <option value="Monthly" selected="@(s.BillingPeriod == BillingPeriod.Monthly)">Monthly</option>
+            <option value="Yearly" selected="@(s.BillingPeriod == BillingPeriod.Yearly)">Yearly</option>
+          </select>
+          <button class="btn btn-success text-nowrap">Activate</button>
+        </form>
+    }
+    else
+    {
+        <div class="d-flex gap-2 flex-wrap align-items-start">
+          <form asp-action="Renew" asp-route-id="@s.Id" method="post" class="d-flex gap-2" onsubmit="return confirm('Extend this subscription?');">
+            <select name="period" class="form-select w-auto">
+              <option value="Monthly" selected="@(s.BillingPeriod == BillingPeriod.Monthly)">+ 1 month</option>
+              <option value="Yearly" selected="@(s.BillingPeriod == BillingPeriod.Yearly)">+ 1 year</option>
+            </select>
+            <button class="btn btn-success">Renew</button>
+          </form>
+
+          @if (s.Status == ShopStatus.Suspended)
+          {
+              <form asp-action="Reactivate" asp-route-id="@s.Id" method="post"><button class="btn btn-outline-success">Reactivate</button></form>
+          }
+          else
+          {
+              <form asp-action="Suspend" asp-route-id="@s.Id" method="post" onsubmit="return confirm('Suspend this shop? Its users are blocked immediately.');">
+                <input type="hidden" name="note" value="" /><button class="btn btn-outline-warning">Suspend</button>
+              </form>
+          }
+
+          <form asp-action="Terminate" asp-route-id="@s.Id" method="post" onsubmit="return confirm('Terminate this shop? Access ends immediately and the subscription is closed.');">
+            <input type="hidden" name="note" value="" /><button class="btn btn-danger">Terminate</button>
+          </form>
+        </div>
+    }
+
+    <a class="btn btn-link px-0 mt-2" asp-controller="AdminPayments" asp-action="Index" asp-route-shopId="@s.Id">View payments</a>
+  </div></div></div>
+
+  <div class="col-lg-6"><div class="card"><div class="card-body">
+    <h2 class="h5">Plan &amp; limits</h2>
+    <form asp-action="Limits" asp-route-id="@s.Id" method="post">
+      <div class="mb-3">
+        <label class="form-label">Plan</label>
+        <select name="planId" class="form-select" asp-items="@(new SelectList(Model.Plans, "Id", "Name", s.PlanId))"></select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Worker limit override</label>
+        <input name="workerLimitOverride" type="number" min="0" max="100" class="form-control" value="@s.WorkerLimitOverride" placeholder="Use plan limit (@s.Plan?.MaxWorkers)" />
+        <div class="form-text">Leave empty to use the plan's limit.</div>
+      </div>
+      <button class="btn btn-dark">Save</button>
+    </form>
+  </div></div></div>
+
+  <div class="col-lg-6"><div class="card"><div class="card-body">
+    <h2 class="h5">Accounts</h2>
+    <table class="table table-sm mb-0"><tbody>
+    @foreach (var usr in Model.Users)
+    {
+        <tr><td>@usr.FullName<div class="small text-muted">@usr.Email</div></td><td>@(usr.IsShopAdmin ? "Admin" : "Worker")</td><td>@(usr.IsActive ? "Active" : "Inactive")</td></tr>
+    }
+    </tbody></table>
+  </div></div></div>
+
+  <div class="col-lg-6"><div class="card"><div class="card-body">
+    <h2 class="h5">History</h2>
+    <table class="table table-sm mb-0"><tbody>
+    @foreach (var ev in Model.History)
+    {
+        <tr>
+          <td>@ev.CreatedAt.ToString("dd MMM yyyy")</td>
+          <td>@ev.Action</td>
+          <td class="small text-muted">@ev.PlanName @if (ev.Price.HasValue) { <span>(@cur @ev.Price.Value.ToString("N2"))</span> } @ev.Note</td>
+        </tr>
+    }
+    </tbody></table>
+  </div></div></div>
+</div> *@

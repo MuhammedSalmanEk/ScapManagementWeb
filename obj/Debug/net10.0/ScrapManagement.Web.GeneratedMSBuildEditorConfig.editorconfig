@@ -1,0 +1,200 @@
+is_global = true
+build_property.TargetFramework = net10.0
+build_property.TargetFramework = net10.0
+build_property.TargetPlatformMinVersion = 
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.TargetFrameworkIdentifier = .NETCoreApp
+build_property.TargetFrameworkVersion = v10.0
+build_property.EntryPointFilePath = 
+build_property.RootNamespace = ScrapManagement.Web
+build_property.RootNamespace = ScrapManagement.Web
+build_property.ProjectDir = /Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 10.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 10.0
+build_property.EnableCodeStyleSeverity = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Areas/Sales/Views/Sales/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvU2FsZXMvVmlld3MvU2FsZXMvSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Areas/Sales/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvU2FsZXMvVmlld3MvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Areas/Sales/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvU2FsZXMvVmlld3MvX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Account/AccessDenied.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9BY2Nlc3NEZW5pZWQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Account/ChangePassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9DaGFuZ2VQYXNzd29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9Mb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Account/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9SZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/AdminPayments/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW5QYXltZW50cy9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/AdminPlans/Form.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW5QbGFucy9Gb3JtLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/AdminPlans/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW5QbGFucy9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/AdminShops/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW5TaG9wcy9EYXNoYm9hcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/AdminShops/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW5TaG9wcy9EZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/AdminShops/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW5TaG9wcy9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Categories/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2F0ZWdvcmllcy9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Dashboard/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRGFzaGJvYXJkL0luZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Products/Form.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvZHVjdHMvRm9ybS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Products/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvZHVjdHMvSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Purchases/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHVyY2hhc2VzL0RldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Purchases/Form.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHVyY2hhc2VzL0Zvcm0uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Purchases/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHVyY2hhc2VzL0luZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Purchases/Print.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHVyY2hhc2VzL1ByaW50LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Purchases/Receipt.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHVyY2hhc2VzL1JlY2VpcHQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Reports/DailyPurchases.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUmVwb3J0cy9EYWlseVB1cmNoYXNlcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Reports/PurchasesPrint.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUmVwb3J0cy9QdXJjaGFzZXNQcmludC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Reports/Stock.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUmVwb3J0cy9TdG9jay5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Reports/StockPrint.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUmVwb3J0cy9TdG9ja1ByaW50LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0Vycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Shared/_Alerts.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19BbGVydHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Shared/_ConfirmModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19Db25maXJtTW9kYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Shared/_PlanOfferPicker.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19QbGFuT2ZmZXJQaWNrZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Shared/_ShopStatusBadge.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19TaG9wU3RhdHVzQmFkZ2UuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/ShopSettings/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hvcFNldHRpbmdzL0luZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Stock/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU3RvY2svRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Stock/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU3RvY2svSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Subscription/Status.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU3Vic2NyaXB0aW9uL1N0YXR1cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Workers/Form.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvV29ya2Vycy9Gb3JtLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/Workers/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvV29ya2Vycy9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/muhammedsalmanek/Projects/ScrapManagement/src/ScrapManagement.Web/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 

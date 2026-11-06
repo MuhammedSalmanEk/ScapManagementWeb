@@ -1,0 +1,39 @@
+@model WorkerFormViewModel
+@{ var isNew = Model.Id is null; ViewData["Title"] = isNew ? "Add worker" : "Edit worker"; }
+<div class="row justify-content-center"><div class="col-lg-6"><div class="card"><div class="card-body p-4">
+  <h1 class="h4 mb-3">@ViewData["Title"]</h1>
+  <form method="post" asp-action="@(isNew ? "Create" : "Edit")">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3"><label asp-for="FullName" class="form-label"></label><input asp-for="FullName" class="form-control" /><span asp-validation-for="FullName" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="Email" class="form-label"></label><input asp-for="Email" class="form-control" autocomplete="off" /><span asp-validation-for="Email" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="Password" class="form-label">@(isNew ? "Password" : "New password (leave empty to keep)")</label><input asp-for="Password" class="form-control" autocomplete="new-password" /><span asp-validation-for="Password" class="text-danger"></span></div>
+
+    <h2 class="h6 mt-4">What this worker can do</h2>
+    <div class="form-check mb-1"><input asp-for="CanManagePurchases" class="form-check-input" /><label asp-for="CanManagePurchases" class="form-check-label"></label></div>
+    <div class="form-check mb-1"><input asp-for="CanAddProducts" class="form-check-input" /><label asp-for="CanAddProducts" class="form-check-label"></label></div>
+    <div class="form-check mb-1">
+      <input asp-for="CanEditProducts" class="form-check-input" /><label asp-for="CanEditProducts" class="form-check-label"></label>
+      <div class="form-text">Change a product's name, category, retail and wholesale rates. Stock cannot be edited.</div>
+    </div>
+
+    <div class="form-check mb-1">
+    <input asp-for="CanManageCategories" class="form-check-input" /><label asp-for="CanManageCategories" class="form-check-label"></label>
+    <div class="form-text">Add and rename categories. Deactivating a category stays with the shop admin.</div>
+  </div>
+
+    <h2 class="h6 mt-3">What this worker can see</h2>
+    <div class="form-check mb-1">
+      <input asp-for="CanViewStock" class="form-check-input" /><label asp-for="CanViewStock" class="form-check-label"></label>
+      <div class="form-text">Stock page and details, stock quantities on products, dashboard and bills, and the stock report.</div>
+    </div>
+    <div class="form-check mb-1">
+      <input asp-for="CanViewReports" class="form-check-input" /><label asp-for="CanViewReports" class="form-check-label"></label>
+      <div class="form-text">Dashboard totals and money (spent today), recent and all bills, and daily purchase reports.</div>
+    </div>
+
+    @if (!isNew) { <div class="form-check mt-3"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label"></label></div> }
+    <div class="mt-4"><button class="btn btn-dark">Save</button> <a class="btn btn-link" asp-action="Index">Cancel</a></div>
+  </form>
+</div></div></div></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,53 @@
+@model PurchaseBill
+@{
+    Layout = null;
+    var shop = ViewBag.Shop as Shop;
+    int width = ViewBag.Width is int w ? w : 80;
+    if (width != 58) width = 80;              // thermal receipts are 58 mm or 80 mm
+    bool auto = ViewBag.Auto is bool a && a;
+    var cur = AppOpts.Value.CurrencySymbol;
+    var contentMm = width == 58 ? 48 : 72;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(Model.InvoiceNumber ?? "Draft")</title>
+    <style>
+        @@page { size: @(width)mm auto; margin: 0; }
+        body { margin: 0; padding: 2mm 3mm; width: @(contentMm)mm; font-family: "Courier New", monospace; font-size: @(width == 58 ? 11 : 12)px; color: #000; }
+        .c { text-align: center; } .r { text-align: right; } .b { font-weight: bold; }
+        hr { border: 0; border-top: 1px dashed #000; margin: 4px 0; }
+        .row { display: flex; justify-content: space-between; gap: 6px; }
+        .toolbar { margin: 8px 0; } .toolbar button { padding: 8px 14px; font-size: 14px; }
+        @@media print { .toolbar { display: none; } }
+    </style>
+</head>
+<body>
+<div class="toolbar"><button onclick="window.print()">Print</button></div>
+<div class="c b" style="font-size:1.25em">@shop?.Name</div>
+@if (!string.IsNullOrEmpty(shop?.Address)) { <div class="c">@shop!.Address</div> }
+@if (!string.IsNullOrEmpty(shop?.Phone)) { <div class="c">Ph: @shop!.Phone</div> }
+@if (!string.IsNullOrEmpty(shop?.TaxNumber)) { <div class="c">Tax: @shop!.TaxNumber</div> }
+<hr />
+<div class="c b">PURCHASE BILL@(Model.Status == BillStatus.Draft ? " (DRAFT)" : "")</div>
+<div>No: @(Model.InvoiceNumber ?? "-")</div>
+<div>Date: @Model.BillDate.ToString("dd-MM-yyyy")</div>
+<div>Seller: @Model.SellerName</div>
+@if (!string.IsNullOrEmpty(Model.SellerPhone)) { <div>Ph: @Model.SellerPhone</div> }
+<hr />
+@foreach (var i in Model.Items)
+{
+    <div class="b">@i.ProductName</div>
+    <div class="row"><span>@i.QuantityKg.ToString("0.###") kg x @i.RatePerKg.ToString("0.##")</span><span>@i.LineTotal.ToString("N2")</span></div>
+}
+<hr />
+<div class="row"><span>Total kg</span><span>@Model.TotalKg.ToString("0.###")</span></div>
+<div class="row b" style="font-size:1.15em"><span>TOTAL @cur</span><span>@Model.TotalAmount.ToString("N2")</span></div>
+<hr />
+@if (!string.IsNullOrEmpty(shop?.InvoiceFooter)) { <div class="c">@shop!.InvoiceFooter</div> }
+<div class="c">Thank you</div>
+@if (auto) { <script>window.addEventListener('load', function () { window.print(); });</script> }
+</body>
+</html>

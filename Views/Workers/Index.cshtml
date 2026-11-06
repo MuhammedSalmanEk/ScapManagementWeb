@@ -1,0 +1,27 @@
+@model WorkersIndexViewModel
+@{ ViewData["Title"] = "Workers"; }
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+  <h1 class="h3 mb-0">Workers <small class="text-muted fs-6">@Model.ActiveCount of @Model.Limit active accounts used</small></h1>
+  @if (Model.ActiveCount < Model.Limit) { <a class="btn btn-dark" asp-action="Create">+ Add worker</a> }
+  else { <span class="text-muted">Worker limit reached</span> }
+</div>
+<div class="card"><div class="table-responsive"><table class="table align-middle mb-0">
+  <thead><tr><th>Name</th><th>Login email</th><th>Permissions</th><th>Status</th><th></th></tr></thead><tbody>
+  @foreach (var w in Model.Workers)
+  {
+      <tr>
+        <td>@w.FullName</td><td>@w.Email</td>
+        <td>
+          @if (w.CanManagePurchases) { <span class="badge text-bg-light border">Purchases</span> }
+          @if (w.CanManageCategories) { <span class="badge text-bg-light border">Categories</span> }
+          @if (w.CanAddProducts) { <span class="badge text-bg-light border">Add products</span> }
+          @if (w.CanEditProducts) { <span class="badge text-bg-light border">Edit products</span> }
+          @if (w.CanViewStock) { <span class="badge text-bg-light border">Stock</span> }
+          @if (w.CanViewReports) { <span class="badge text-bg-light border">Reports</span> }
+        </td>
+        <td>@if (w.IsActive) { <span class="badge text-bg-success">Active</span> } else { <span class="badge text-bg-secondary">Inactive</span> }</td>
+        <td class="text-end"><a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@w.Id">Edit</a></td>
+      </tr>
+  }
+  @if (!Model.Workers.Any()) { <tr><td colspan="5" class="text-muted">No workers yet.</td></tr> }
+  </tbody></table></div></div>
